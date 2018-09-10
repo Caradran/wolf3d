@@ -18,5 +18,5 @@ t_vec2	vec2_sub(t_vec2 a, t_vec2 b)
 
 float	vec2_dist(t_vec2 a, t_vec2 b)
 {
-	return(vec2_norm(vec2_sub(a, b)));
+	return(vec2_norme(vec2_sub(a, b)));
 }
