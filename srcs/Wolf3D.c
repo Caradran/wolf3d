@@ -8,10 +8,10 @@ int main(int argc, char **argv)
 void	init_ray(t_ray *ray, t_player player)
 {
 	ray->side = 0;
-	ray->pos_x = floor(player.x);
-	ray->pos_y = floor(player.y);
-	ray->delta.x = abs(1 / (float)player.dir.x);
-	ray->delta.y = abs(1 / (float)player.dir.y);
+	ray->pos_x = ft_floor(player.x);
+	ray->pos_y = ft_floor(player.y);
+	ray->delta.x = ft_abs(1 / (float)player.dir.x);
+	ray->delta.y = ft_abs(1 / (float)player.dir.y);
 	ray->dir.x = 1;
 	ray->dist.x = (1 + ray->pos_x - player.x) * ray->delta.x;
 	if (player.dir.x < 0)

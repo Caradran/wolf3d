@@ -1,5 +1,5 @@
-NAME = libmath.a
-SRC = libmath.c
+NAME = libgraph.a
+SRC = libgraph.c
 SRC_PATH = srcs
 OBJ_PATH = objs
 OBJ = $(SRC:%.c=$(OBJ_PATH)/%.o)

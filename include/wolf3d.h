@@ -1,7 +1,7 @@
 #ifndef WOLF3D_H
 # define WOLF3D_H
 
-# include "libmath.h"
+# include "libmymath.h"
 # include "libvec2.h"
 
 typedef struct	s_player
