@@ -12,13 +12,24 @@ typedef struct	s_pos
 } 				t_pos;
 typedef t_pos	t_size;
 
-typedef struct  s_sdlenv
+typedef struct  s_env
 {
 	SDL_Surface	*s;
 	SDL_Window	*w;
-}				t_sdlenv;
+	int			refresh;
+	int 		map[64][64];
+	t_size		size;
+	int 		scale;
+}				t_env;
 
-int draw(SDL_Surface *s, SDL_Window *win) 
+t_env					*get_env(void)
+{
+	static t_env		env;
+
+	return (&env);
+}
+
+/*int draw(SDL_Surface *s, SDL_Window *win) 
 {
 	while (1)
 	{ 
@@ -26,18 +37,19 @@ int draw(SDL_Surface *s, SDL_Window *win)
 		SDL_UpdateWindowSurface(win);
 	}
 	return (0);
-}
+}*/
 
-void set_pixel(t_pos pos, int col, SDL_Surface *s)
+void set_pixel(t_pos pos, int col, t_size maxsize, SDL_Surface *s)
 {
 	int *pixels;
+
 	pixels = s->pixels;
-	if (pos.x < s->w && pos.y < s->h)
-		pixels[pos.x + pos.y * s->w] = col;
+	if (pos.x < maxsize.x && pos.y < maxsize.y)
+		pixels[pos.x + pos.y * maxsize.x] = col;
 	s->pixels = pixels;
 }
 
-void set_rect(t_size size, int col, t_pos pos, SDL_Surface *s)
+void set_rect(t_size size, int col, t_pos pos, t_size maxsize, SDL_Surface *s)
 {
 	int i;
 	int j;
@@ -48,16 +60,16 @@ void set_rect(t_size size, int col, t_pos pos, SDL_Surface *s)
 		j = 0;
 		while (j < size.y)
 		{
-			set_pixel((t_pos){i + pos.x, j + pos.y}, col, s);
+			set_pixel((t_pos){i + pos.x, j + pos.y}, col, maxsize, s);
 			j++;
 		}
 		i++;
 	}
 }
 
-void set_square(int size, int col, t_pos pos, SDL_Surface *s)
+void set_square(int size, int col, t_pos pos, t_size maxsize, SDL_Surface *s)
 {
-	set_rect((t_size){size, size}, col, pos, s);
+	set_rect((t_size){size, size}, col, pos, maxsize, s);
 }
 
 float	ft_min(float a, float b)
@@ -67,11 +79,26 @@ float	ft_min(float a, float b)
 	return (b);
 }
 
-void	draw_map(const int map[64][64], int scale, SDL_Surface *s)
+void	rescale(t_env *env)
+{
+	int scale;
+
+	scale = (int)ft_min(env->size.x/64, env->size.y/64);
+	scale = (int)ft_min((env->size.x - 10 * scale)/64, env->size.y/64);
+	scale = (scale < 3) ? 3 : scale;
+//	printf("%d %d %d\n", env->s->h, env->s->w, scale);
+	env->scale = scale;
+	
+	env->refresh = 1;
+}
+
+void	draw_map()
 {
 	int i;
 	int j;
+	t_env *env;
 
+	env = get_env();
 	i = 0;
 	while (i < 64)
 	{
@@ -80,35 +107,54 @@ void	draw_map(const int map[64][64], int scale, SDL_Surface *s)
 		{
 			// passer a un tableau de func pour les diff couleurs par cases. Un define pour le nombre de couleurs possibles.
 			if (i == 0 || j == 0 || i == 63 || j == 63)
-				set_square(scale - 1, 0xffffff, (t_pos){i*scale, j*scale}, s);
-			else if (map[j][i] == 1)
-				set_square(scale - 1, 0xffff00, (t_pos){i*scale, j*scale}, s);
-			else if (map[j][i] == 2)
-				set_square(scale - 1, 0x00ff00, (t_pos){i*scale, j*scale}, s);
-			else if (map[j][i] == 3)
-				set_square(scale - 1, 0xff0000, (t_pos){i*scale, j*scale}, s);
+				set_square(env->scale - 1, 0xffffff, (t_pos){i*env->scale, j*env->scale}, env->size, env->s);
+			else if (env->map[j][i] == 1)
+				set_square(env->scale - 1, 0xffff00, (t_pos){i*env->scale, j*env->scale}, env->size, env->s);
+			else if (env->map[j][i] == 2)
+				set_square(env->scale - 1, 0x00ff00, (t_pos){i*env->scale, j*env->scale}, env->size, env->s);
+			else if (env->map[j][i] == 3)
+				set_square(env->scale - 1, 0xff0000, (t_pos){i*env->scale, j*env->scale}, env->size, env->s);
 			else
-				set_square(scale - 1, 0x555555, (t_pos){i*scale, j*scale}, s);
+				set_square(env->scale - 1, 0x555555, (t_pos){i*env->scale, j*env->scale}, env->size, env->s);
 			j++;
 		}
 		i++;
 	}
 }
 
-void	draw_square_mouse(SDL_Event e, int map[64][64], int scale)
+int 	draw(void *data)
 {
-		if (e.motion.x/scale < 64 && e.motion.y/scale < 64)
-			map[((int)(e.motion.y/scale))][((int)(e.motion.x/scale))] = 3;
+	t_env	*env;
+
+	env = get_env();
+	while(1)
+	{
+		env->s = SDL_GetWindowSurface(env->w);
+		env->size = (t_size){env->s->w, env->s->h};
+		if (env->refresh == 1)
+		{
+			printf("%d %d %d\n", env->s->h, env->s->w, env->scale);
+			draw_map();
+			SDL_UpdateWindowSurface(env->w);
+			env->refresh = 0;
+		}
+	}
 }
 
-int main(int argc, char **argv)
+void	draw_square_mouse(SDL_Event e, t_env *env)
 {
-	SDL_Surface *s;
-	SDL_Window *win;
-	int quit;
-	int scale;
-	int tmpscale;
-	int map[64][64] = {{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+	rescale(env);
+	if (e.motion.x/env->scale < 64 && e.motion.y/env->scale < 64)
+	{
+		env->map[((int)(e.motion.y/env->scale))][((int)(e.motion.x/env->scale))] = 3;
+		env->refresh = 1;
+	}
+}
+
+int 	init_env(t_env *env)
+{
+	int i;
+	int tmpmap[64][64] = {{1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
 						 {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
 						 {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
 						 {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
@@ -166,37 +212,65 @@ int main(int argc, char **argv)
 						 {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
 						 {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
 						 {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-						 {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+						 {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
 						 {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
 						 {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
 						 {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
 						 {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
 						 {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}};
-
 	if (SDL_Init(SDL_INIT_VIDEO))
-		return 1;
-	if (!(win = SDL_CreateWindow(TITLE, SDL_WINDOWPOS_CENTERED , SDL_WINDOWPOS_CENTERED,
+		return (1);
+	if (!(env->w = SDL_CreateWindow(TITLE, SDL_WINDOWPOS_CENTERED , SDL_WINDOWPOS_CENTERED,
 		WIDTH, HEIGHT, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE)))
-		exit(EXIT_FAILURE);
-	s = SDL_GetWindowSurface(win);
+		return (1);
+	memcpy(env->map, tmpmap, sizeof(int*) * 64);
+	i = 0;
+	while (i < 65)
+	{
+		memcpy(env->map[i], tmpmap[i], sizeof(int) * 64);
+		i++;
+	}
+	env->s = SDL_GetWindowSurface(env->w);
+	env->size = (t_size){env->s->w, env->s->h};
+	env->refresh = 1;
+	rescale(env);
+	printf("env %d\n", env->map[0][0]);
+	printf("%p\n", env);
+	write(1, "test\n", 5);
+	return (0);
+}
+
+int main(int argc, char **argv)
+{
+	t_env *env;
+	int quit;
+	SDL_Thread *t;
+	env = get_env();
+	if ((init_env(env)))
+		return (0);
+	printf("%p\n", env);
+	printf("env %d\n", env->map[0][0]);
+	if (!(t = SDL_CreateThread(draw, "Draw thread", NULL)))
+		exit(1);
 	SDL_Event e;
 	quit = 0;
 	int flag = 0;
-	while(!quit)
+	while(1)
 	{
 		while (SDL_PollEvent(&e))
 		{
-			s = SDL_GetWindowSurface(win);
-			scale = (int)ft_min(s->w/64, s->h/64);	
-			scale = (scale < 3) ? 3 : scale;
-			draw_map(map, scale, s);
+			if (e.type == SDL_WINDOWEVENT
+					&& e.window.event == SDL_WINDOWEVENT_RESIZED)
+				rescale(env);
 			if (e.type == SDL_MOUSEBUTTONDOWN)
 				flag = 1;
 			if (e.type == SDL_MOUSEBUTTONUP)
 				flag = 0;
 			if (flag)
-				draw_square_mouse(e, map, scale);
-			SDL_UpdateWindowSurface(win);
+			{
+				rescale(env);
+				draw_square_mouse(e, env);
+			}
 			if (e.type == SDL_QUIT)
 				exit(1);
 		}
