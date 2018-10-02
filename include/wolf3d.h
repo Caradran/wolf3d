@@ -1,24 +1,32 @@
 #ifndef WOLF3D_H
 # define WOLF3D_H
 
+# include <SDL.h>
 # include "libmymath.h"
+# include "libgraph.h"
+# include "libft.h"
 # include "libvec2.h"
 
-typedef struct	s_player
-{
-	float x;
-	float y;
-	t_vec2 dir;
-}				t_player;
+# define WIDTH 1080
+# define HEIGHT 900
+# define BPP 32
+# define TITLE "Wolf 3D"
 
-typedef struct  s_ray
+# define NB_TILES 5
+
+typedef struct  s_env
 {
-	int		pos_x;
-	int		pos_y;
-	int		side;
-	t_vec2	dir;
-	t_vec2	dist;
-	t_vec2	delta;
-}				t_ray;
+	SDL_Surface	*s;
+	SDL_Window	*w;
+	int			refresh;
+	int 		**map;
+	t_size		size;
+	int 		scale;
+}				t_env;
+
+void	draw_legend(t_env *env);
+void	draw_map(t_env *env);
+void	draw_square_mouse(SDL_Event e, t_env *env, int flag);
+void	save_map(int **map, char *mapname);
 
 #endif

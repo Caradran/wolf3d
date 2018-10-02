@@ -3,7 +3,7 @@ SRC = libgraph.c
 SRC_PATH = srcs
 OBJ_PATH = objs
 OBJ = $(SRC:%.c=$(OBJ_PATH)/%.o)
-FLAGS = -Werror -Wextra -Wall -Iinclude
+FLAGS = -Werror -Wextra -Wall -Iinclude 
 
 all : $(NAME)
 
@@ -12,7 +12,7 @@ $(NAME) : $(OBJ)
 	ranlib $(NAME);
 
 $(OBJ_PATH)/%.o : $(SRC_PATH)/%.c
-	$(CC) $(FLAGS) -c $< -o $@
+	$(CC) $(FLAGS) -c $< `sdl2-config --cflags` -o $@ 
 
 clean :
 	rm -f $(OBJ);
