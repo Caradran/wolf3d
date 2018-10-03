@@ -1,6 +1,6 @@
 #include "wolf3d.h"
 
-void put_nb_tab_fd(int **tab, int fd)
+void	put_nb_tab_fd(int **tab, int fd)
 {
 	int i;
 	int j;
@@ -21,10 +21,9 @@ void put_nb_tab_fd(int **tab, int fd)
 		write(fd, "\n", 1);
 		i++;
 	}
-	
 }
 
-void save_map(int **map, char *mapname)
+void	save_map(int **map, char *mapname)
 {
 	int fd;
 

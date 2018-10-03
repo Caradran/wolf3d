@@ -1,27 +1,27 @@
-#include "wolf3d.h" 
+#include "wolf3d.h"
 
 void	rescale(t_env *env)
 {
 	int scale;
 
-	scale = (int)ft_min((int)env->s->w/64, (int)env->s->h/64);
-	scale = (int)ft_min((env->s->w - 11 * scale)/64, env->s->h/64);
+	scale = (int)ft_min((int)env->s->w / 64, (int)env->s->h / 64);
+	scale = (int)ft_min((env->s->w - 11 * scale) / 64, env->s->h / 64);
 	scale = (scale < 3) ? 3 : scale;
 	env->scale = scale;
 	env->refresh = 1;
 }
 
-int 	color_tile(int n)
+int		color_tile(int n)
 {
-	static int colors[NB_TILES + 1] = {0x555555, 0xffff00, 0x00ff00, 0xff0000, 0x000000, 0xffffff};
+	static int colors[NB_TILES + 1] =
+	{0x555555, 0xffff00, 0x00ff00, 0xff0000, 0x000000, 0xffffff};
 
 	return (colors[n]);
 }
 
-
 int		*ft_strintsplit(char *str, char c)
 {
-	int		*res;
+	int			*res;
 	int			i;
 	int			j;
 
@@ -44,7 +44,7 @@ int		*ft_strintsplit(char *str, char c)
 
 int		**ft_intsplit(char **tab)
 {
-	int	**points;
+	int		**points;
 	int		i;
 	int		j;
 
@@ -86,16 +86,14 @@ char	**ft_mise_en_tab(char **argv)
 	return (buffer);
 }
 
-int 	init_env(t_env *env, char **argv, int argc)
+int		init_env(t_env *env, char **argv, int argc)
 {
 	int i;
-	int j;
-	if (SDL_Init(SDL_INIT_VIDEO))
-		return (1);
-	if (!(env->w = SDL_CreateWindow(TITLE, SDL_WINDOWPOS_CENTERED , SDL_WINDOWPOS_CENTERED,
-		WIDTH, HEIGHT, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE)))
-		return (1);
 
+	if (SDL_Init(SDL_INIT_VIDEO) || !(env->w = SDL_CreateWindow(TITLE,
+		SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WIDTH, HEIGHT,
+		SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE)))
+		return (1);
 	if (argc == 2)
 		env->map = ft_intsplit(ft_mise_en_tab(argv));
 	i = 0;
@@ -107,15 +105,6 @@ int 	init_env(t_env *env, char **argv, int argc)
 			if (!(env->map[i++] = ft_memalloc(sizeof(int) * 64)))
 				exit(1);
 	}
-	i = 0;
-	while (i < 64)
-	{
-		j = 0;
-		while (j < 64)
-			printf("%i ", env->map[i][j++]);
-		printf("\n");
-		i++;
-	}
 	env->player.pos = (t_vec2){1.5, 1.5};
 	env->player.dir = vec2_normalize((t_vec2){1, 0});
 	env->s = SDL_GetWindowSurface(env->w);
@@ -125,11 +114,11 @@ int 	init_env(t_env *env, char **argv, int argc)
 	return (0);
 }
 
-int choose_color(SDL_Event e, t_env env, int prev)
+int		choose_color(SDL_Event e, t_env env, int prev)
 {
-	t_pos pos;
-	int size;
-	int i;
+	t_pos	pos;
+	int		size;
+	int		i;
 
 	size = 2 * env.scale;
 	pos.x = 68 * env.scale - 1;
@@ -145,7 +134,7 @@ int choose_color(SDL_Event e, t_env env, int prev)
 	return (prev);
 }
 
-int sign(float x)
+int		sign(float x)
 {
 	return (x > 0 ? 1 : -1);
 }
@@ -160,35 +149,34 @@ int		detect_collision(t_env env, int dir)
 	y = env.player.pos.y + 0.1 * dir * env.player.dir.y;
 	supp = 0;
 	if (fabs(env.player.dir.x) > fabs(env.player.dir.y))
-		supp = 1;	
+		supp = 1;
 	if (x < 0 || x > 64 || y < 0 || y > 64 || env.map[x][y])
 		return (1);
-	else if ((x != (int)env.player.pos.x && y != (int)env.player.pos.y) && supp && env.map[x][y - sign(dir * env.player.dir.y)])
+	else if ((x != (int)env.player.pos.x && y != (int)env.player.pos.y) &&
+		supp && env.map[x][y - sign(dir * env.player.dir.y)])
 		return (1);
-	else if ((x != (int)env.player.pos.x && y != (int)env.player.pos.y) && !supp && env.map[x - sign(dir * env.player.dir.x)][y])
+	else if ((x != (int)env.player.pos.x && y != (int)env.player.pos.y) &&
+		!supp && env.map[x - sign(dir * env.player.dir.x)][y])
 		return (1);
 	return (0);
 }
 
-
-int 	main(int argc, char **argv)
+int		main(int argc, char **argv)
 {
-	t_env env;
-	int quit;
-	SDL_Thread *t;
-	int flag;
-	int color;
+	t_env		env;
+	SDL_Thread	*t;
+	int			flag;
+	int			color;
+	SDL_Event	e;
 
 	if (argc > 2 || argc <= 0)
 		return (0);
 	if (init_env(&env, argv, argc))
 		return (0);
-	SDL_Event e;
-	quit = 0;
 	color = 0;
 	flag = 0;
 	send_rays(&env);
-	while(1)
+	while (1)
 	{
 		while (SDL_PollEvent(&e))
 		{
@@ -212,27 +200,19 @@ int 	main(int argc, char **argv)
 			if (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_RETURN)
 				save_map(env.map, "maps/map01");
 			if (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_UP)
-			{
 				if (!detect_collision(env, 1))
 				{
 					env.player.pos.x += env.player.dir.x * 0.1;
 					env.player.pos.y += env.player.dir.y * 0.1;
 					env.refresh = 1;
 				}
-				else
-					printf("coll\n");
-			}
 			if (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_DOWN)
-			{
 				if (!detect_collision(env, -1))
 				{
 					env.player.pos.x -= env.player.dir.x * 0.1;
 					env.player.pos.y -= env.player.dir.y * 0.1;
 					env.refresh = 1;
 				}
-				else
-					printf("coll\n");
-			}
 			if (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_RIGHT)
 			{
 				env.player.dir = vec2_rot(-M_PI / 90, env.player.dir);

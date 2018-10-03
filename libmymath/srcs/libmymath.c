@@ -1,3 +1,4 @@
+
 int		ft_ceil(float x)
 {
 	if ((int)x == x)

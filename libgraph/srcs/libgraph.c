@@ -1,6 +1,6 @@
 #include "libgraph.h"
 
-void set_pixel(t_pos pos, int col, SDL_Surface *s)
+void	set_pixel(t_pos pos, int col, SDL_Surface *s)
 {
 	int *pixels;
 
@@ -10,11 +10,11 @@ void set_pixel(t_pos pos, int col, SDL_Surface *s)
 	s->pixels = pixels;
 }
 
-void set_rect(t_size size, int col, t_pos pos, SDL_Surface *s)
+void	set_rect(t_size size, int col, t_pos pos, SDL_Surface *s)
 {
 	int i;
 	int j;
-	
+
 	i = 0;
 	while (i < size.x)
 	{
@@ -28,7 +28,7 @@ void set_rect(t_size size, int col, t_pos pos, SDL_Surface *s)
 	}
 }
 
-void set_square(int size, int col, t_pos pos, SDL_Surface *s)
+void	set_square(int size, int col, t_pos pos, SDL_Surface *s)
 {
 	set_rect((t_size){size, size}, col, pos, s);
 }
