@@ -8,7 +8,7 @@ t_vec2	vec2_scale(float a, t_vec2 vec)
 t_vec2	vec2_rot(float a, t_vec2 vec)
 {
 	return((t_vec2){vec.x * cos(a) - vec.y * sin(a),
-	 vec.x * sin(a) + vec.y * sin(a)});
+	 vec.x * sin(a) + vec.y * cos(a)});
 }
 
 t_vec2	vec2_sub(t_vec2 a, t_vec2 b)

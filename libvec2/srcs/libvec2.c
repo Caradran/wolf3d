@@ -17,7 +17,7 @@ float	vec2_dot(t_vec2 a, t_vec2 b)
 
 float	vec2_norme(t_vec2 a)
 {
-	return (sqrt(a.x * a.x + a.x * a.x));
+	return (sqrt(a.x * a.x + a.y * a.y));
 }
 
 t_vec2	vec2_normalize(t_vec2 a)

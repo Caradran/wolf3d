@@ -1,6 +1,6 @@
 #include "wolf3d.h"
 
-void put_nb_tab_fd(int **tab. int fd)
+void put_nb_tab_fd(int **tab, int fd)
 {
 	int i;
 	int j;
@@ -11,7 +11,10 @@ void put_nb_tab_fd(int **tab. int fd)
 		j = 0;
 		while (j < 64)
 		{
-			ft_putnbr_fd(tab[i][j], fd);
+			if (i == 0 || j == 0 || i == 63 || j == 63)
+				ft_putnbr_fd(NB_TILES, fd);
+			else
+				ft_putnbr_fd(tab[i][j], fd);
 			write(fd, " ", 1);
 			j++;
 		}
@@ -25,7 +28,7 @@ void save_map(int **map, char *mapname)
 {
 	int fd;
 
-	if ((fd = open(mapname, O_RDWR)) < 0)
+	if ((fd = open(mapname, O_RDWR | O_CREAT, S_IRWXU)) < 0)
 		exit(1);
 	put_nb_tab_fd(map, fd);
 	close(fd);
