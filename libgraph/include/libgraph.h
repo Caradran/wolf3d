@@ -14,5 +14,6 @@ typedef t_pos	t_size;
 void			set_pixel(t_pos pos, int col, SDL_Surface *s);
 void			set_rect(t_size size, int col, t_pos pos, SDL_Surface *s);
 void			set_square(int size, int col, t_pos pos, SDL_Surface *s);
+int				scale_color(int color, double scale);
 
 #endif

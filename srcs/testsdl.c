@@ -14,7 +14,7 @@ void	rescale(t_env *env)
 int		color_tile(int n)
 {
 	static int colors[NB_TILES + 1] =
-	{0x555555, 0xffff00, 0x00ff00, 0xff0000, 0x000000, 0xffffff};
+	{0x555555, 0xffff00, 0x00ff00, 0xff0000, 0x050505, 0xffffff};
 
 	return (colors[n]);
 }
@@ -28,17 +28,24 @@ int		*ft_strintsplit(char *str, char c)
 	j = 0;
 	i = 0;
 	if (!str || !(res = (int*)malloc(sizeof(int) * 64)))
-		exit(1);
+		return (NULL);
 	while (j < 64)
 	{
 		while (str[i] && str[i] == c)
 			i++;
 		if (str[i])
 			j++;
-		res[j - 1] = (int)ft_atoi(&(str[i]));
+		else
+			return (NULL);
+		if ((res[j - 1] = (int)ft_atoi(&(str[i]))) > NB_TILES || res[j - 1 ] < 0)
+			return (NULL);
 		while (str[i] && str[i] != c)
 			i++;
+		while (str[i] && str[i] == c)
+			i++;
 	}
+	if (str[i])
+		return (NULL);
 	return (res);
 }
 
@@ -50,14 +57,14 @@ int		**ft_intsplit(char **tab)
 
 	i = 0;
 	if (!tab)
-		exit(1);
+		return (NULL);
 	if (!(points = malloc(sizeof(int*) * 64)))
-		exit(1);
+		return (NULL);
 	j = 0;
 	while (j < 64)
 	{
 		if (!(points[j] = (int*)ft_strintsplit(tab[j], ' ')))
-			exit(1);
+			return (NULL);
 		j++;
 		ft_memdel((void**)&tab[j - 1]);
 	}
@@ -74,14 +81,14 @@ char	**ft_mise_en_tab(char **argv)
 
 	i = 0;
 	if ((fd = open(argv[1], O_RDONLY)) < 0)
-		exit(1);
+		return (NULL);
 	if (!(buffer = malloc(sizeof(char *) * (65))))
-		exit(1);
+		return (NULL);
 	i = 0;
 	while (get_next_line(fd, buffer + i) == 1 && i < 66)
 		i++;
 	if (i != 64)
-		exit(1);
+		return (NULL);
 	close(fd);
 	return (buffer);
 }
@@ -94,22 +101,23 @@ int		init_env(t_env *env, char **argv, int argc)
 		SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WIDTH, HEIGHT,
 		SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE)))
 		return (1);
-	if (argc == 2)
-		env->map = ft_intsplit(ft_mise_en_tab(argv));
+	if (argc == 2 && !(env->map = ft_intsplit(ft_mise_en_tab(argv))))
+			ft_quit(env, PARSE_ERR);
 	i = 0;
 	if (argc == 1)
 	{
 		if (!(env->map = ft_memalloc(sizeof(int*) * 64)))
-			exit(1);
+			ft_quit(env, MALLOC_FAIL);
 		while (i < 64)
 			if (!(env->map[i++] = ft_memalloc(sizeof(int) * 64)))
-				exit(1);
+				ft_quit(env, MALLOC_FAIL);
 	}
 	env->player.pos = (t_vec2){1.5, 1.5};
-	env->player.dir = vec2_normalize((t_vec2){1, 0});
+	env->player.dir = vec2_normalize((t_vec2){1, 1});
 	env->s = SDL_GetWindowSurface(env->w);
 	env->size = (t_size){env->s->w, env->s->h};
 	env->refresh = 1;
+	env->texts = get_texture();
 	rescale(env);
 	return (0);
 }
@@ -132,11 +140,6 @@ int		choose_color(SDL_Event e, t_env env, int prev)
 		i++;
 	}
 	return (prev);
-}
-
-int		sign(float x)
-{
-	return (x > 0 ? 1 : -1);
 }
 
 int		detect_collision(t_env env, int dir)
@@ -195,10 +198,11 @@ int		main(int argc, char **argv)
 				flag = 0;
 			if (flag)
 				draw_square_mouse(e, &env, color);
-			if (e.type == SDL_QUIT)
-				exit(1);
+			if (e.type == SDL_QUIT || (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_ESCAPE)) 
+				ft_quit(&env, QUIT);
 			if (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_RETURN)
-				save_map(env.map, "maps/map01");
+				if (save_map(env.map, "maps/map02"))
+					ft_quit(&env, SAVE_FAIL);
 			if (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_UP)
 				if (!detect_collision(env, 1))
 				{
@@ -231,6 +235,7 @@ int		main(int argc, char **argv)
 			if (argc == 1)
 			{
 				rescale(&env);
+//				print_text(get_texture()[0], &env);
 				draw_map(&env);
 			}
 			else

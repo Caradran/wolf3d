@@ -1,5 +1,33 @@
 #include "wolf3d.h"
 
+void	ft_quit(t_env *env, char *str)
+{
+	int i;
+	
+	ft_putendl(str);
+	i = 0;
+	if (env->map)
+	{
+		while (i < 64 && env->map[i])
+		{
+			ft_memdel((void**)&env->map[i]);
+			i++;
+		}
+		ft_memdel((void**)&env->map);
+	}
+	i = 0;
+	if (env->texts)
+	{
+		while (i < NB_TEXT && env->texts[i].map)
+		{
+			ft_memdel((void**)&env->texts[i].map);
+			i++;
+		}
+	}
+	ft_putendl("exit successfuly");
+	exit(1);
+}
+
 void	put_nb_tab_fd(int **tab, int fd)
 {
 	int i;
@@ -23,12 +51,13 @@ void	put_nb_tab_fd(int **tab, int fd)
 	}
 }
 
-void	save_map(int **map, char *mapname)
+int		save_map(int **map, char *mapname)
 {
 	int fd;
 
 	if ((fd = open(mapname, O_RDWR | O_CREAT, S_IRWXU)) < 0)
-		exit(1);
+		return (-1);
 	put_nb_tab_fd(map, fd);
 	close(fd);
+	return (0);
 }

@@ -1,24 +1,28 @@
-
-int		ft_ceil(float x)
+int		ft_ceil(double x)
 {
 	if ((int)x == x)
 		return ((int)x);
 	return ((int)x + 1);
 }
 
-int		ft_floor(float x)
+int		ft_floor(double x)
 {
 	return ((int)x);
 }
 
-float	ft_abs(float x)
+double	ft_abs(double x)
 {
 	return (x >= 0 ? x : -x);
 }
 
-float	ft_min(float a, float b)
+double	ft_min(double a, double b)
 {
 	if (a < b)
 		return (a);
 	return (b);
+}
+
+int		sign(double x)
+{
+	return (x > 0 ? 1 : -1);
 }
