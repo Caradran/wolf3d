@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   textures.c                                         :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: esuits <marvin@42.fr>                      +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2018/10/05 13:06:54 by esuits            #+#    #+#             */
+/*   Updated: 2018/10/05 13:06:58 by esuits           ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "wolf3d.h"
 
 Uint32			getpixel(SDL_Surface *surface, int x, int y)
@@ -56,7 +68,6 @@ t_text			get_texture_datas(char *path)
 	}
 	else
 	{
-		printf("coucou\n");
 		texture.img_w = img->w;
 		texture.img_h = img->h;
 		if (!(texture.map = malloc(sizeof(int) * (img->w * img->h))))
@@ -80,6 +91,16 @@ t_text			*get_texture(void)
 	textures[1] = get_texture_datas("./textures/metal.jpg");
 	textures[2] = get_texture_datas("./textures/brick.jpg");
 	textures[3] = get_texture_datas("./textures/wood.jpg");
+	textures[4] = get_texture_datas("./textures/stainedGlass1.png");
+	textures[5] = get_texture_datas("./textures/tilesStainedGlass.png");
+	textures[6] = get_texture_datas("./textures/anvil_base.png");
+	textures[7] = get_texture_datas("./textures/ice_packed.png");
+	textures[8] = get_texture_datas("./textures/log_birch_top.png");
+	textures[9] = get_texture_datas("./textures/planks_oak.png");
+	textures[10] = get_texture_datas("./textures/prismarine_bricks.png");
+	textures[11] = get_texture_datas("./textures/quartz_block_bottom.png");
+	textures[12] = get_texture_datas("./textures/stone_diorite.png");
+	textures[13] = get_texture_datas("./textures/stone_andesite.png");
 	return (textures);
 }
 

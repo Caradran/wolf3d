@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   wolf3d.c                                           :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: esuits <marvin@42.fr>                      +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2018/10/05 13:07:07 by esuits            #+#    #+#             */
+/*   Updated: 2018/10/05 13:08:40 by esuits           ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "wolf3d.h"
 
 t_ray	init_ray(t_player player)
@@ -62,28 +74,12 @@ double	wall_dist(t_ray ray, t_player player, t_vec2 dir)
 	return (dist);
 }
 
-void	print_wall(t_ray ray, t_env *env, int i, t_vec2 dir)
+int		ray_in_scop(t_ray ray)
 {
-	double	dist;
-	double	re_hight;
-	double	hight;
-	int		j;
-	t_text  text;
-
-	dist = wall_dist(ray, env->player, dir);
-	re_hight = env->s->h / (dist * cos(-FOV / 2.0 + (double)i / env->s->w) * FOV);
-	hight = env->s->h / ((dist * cos(-FOV / 2.0 + ((double)i / env->s->w) * FOV)) < 1 ? 1 : (dist * cos(-FOV / 2.0 + ((double)i / env->s->w) * FOV)));
-	j = -1;
-	text = env->texts[env->map[ray.pos_x][ray.pos_y] % (NB_TEXT)];
-	while (++j < (int)hight)
-		if (ray.pos_x >= 0 && ray.pos_y >= 0 && ray.pos_x < 64
-			&& ray.pos_y < 64 && ray.side)
-			set_pixel((t_pos){i, ((env->s->h - (int)hight) / 2 + j)},
-				uv_wall(text, (double)j / re_hight - (double)(hight - re_hight) / (2 * re_hight), env->player.pos.y + dist * dir.y - (int)(env->player.pos.y + dist * dir.y)), env->s);
-		else if (ray.pos_x >= 0 && ray.pos_y >= 0 && ray.pos_x < 64
+	if (ray.pos_x >= 0 && ray.pos_y >= 0 && ray.pos_x < 64
 			&& ray.pos_y < 64)
-			set_pixel((t_pos){i, ((env->s->h - hight) / 2 + j)},
-				scale_color(uv_wall(text, (double)j / re_hight - (double)(hight - re_hight) / (2 * re_hight), env->player.pos.x + dist * dir.x - (int)(env->player.pos.x + dist * dir.x)), 0.5), env->s);
+		return (1);
+	return (0);
 }
 
 void	send_rays(t_env *env)

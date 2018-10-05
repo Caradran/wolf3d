@@ -3,7 +3,7 @@ SRC = libvec2.c libvec2_1.c
 SRC_PATH = srcs
 OBJ_PATH = objs
 OBJ = $(SRC:%.c=$(OBJ_PATH)/%.o)
-FLAGS = -Werror -Wextra -Wall -Iinclude
+FLAGS = -Werror -Wextra -Wall -Iinclude -O3
 
 all : $(NAME)
 

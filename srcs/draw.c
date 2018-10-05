@@ -49,3 +49,42 @@ void	draw_square_mouse(SDL_Event e, t_env *env, int flag)
 		env->refresh = 1;
 	}
 }
+
+t_text	choose_text(t_env *env, t_ray ray)
+{
+	if (ray.side && ray.dir.x == 1)
+		return (env->texts[env->map[ray.pos_x][ray.pos_y] % (NB_TEXT)]);
+	if (ray.side && ray.dir.x == -1)
+		return (env->texts[(env->map[ray.pos_x][ray.pos_y] + 1) % (NB_TEXT)]);
+	if (!ray.side && ray.dir.y == 1)
+		return (env->texts[(env->map[ray.pos_x][ray.pos_y] + 2) % (NB_TEXT)]);
+	return (env->texts[(env->map[ray.pos_x][ray.pos_y] + 3) % (NB_TEXT)]);
+}
+
+void	print_wall(t_ray ray, t_env *env, int i, t_vec2 dir)
+{
+	double	dist;
+	double	re_hight;
+	double	hight;
+	int		j;
+	t_text	text;
+
+	dist = wall_dist(ray, env->player, dir);
+	re_hight = env->s->h / (dist * cos(-FOV / 2.0 +
+				(double)i / env->s->w) * FOV);
+	hight = (re_hight > env->s->h ? env->s->h : re_hight);
+	j = -1;
+	text = choose_text(env, ray);
+	dir.y = part_dec(env->player.pos.y + dist * dir.y);
+	dir.x = part_dec(env->player.pos.x + dist * dir.x);
+	while (++j < (int)hight)
+		if (ray_in_scop(ray) && ray.side)
+			set_pixel((t_pos){i, ((env->s->h - (int)hight) / 2 + j)},
+				uv_wall(text, (double)((j - (double)(hight - re_hight)
+				/ 2) / re_hight), dir.y), env->s);
+		else if (ray_in_scop(ray))
+			set_pixel((t_pos){i, ((env->s->h - hight) / 2 + j)},
+				scale_color(uv_wall(text, (double)j / re_hight -
+				(double)(hight - re_hight) / (2 * re_hight),
+				dir.x), 0.5), env->s);
+}

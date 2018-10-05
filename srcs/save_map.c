@@ -1,9 +1,21 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   save_map.c                                         :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: esuits <marvin@42.fr>                      +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2018/10/05 13:06:27 by esuits            #+#    #+#             */
+/*   Updated: 2018/10/05 13:06:45 by esuits           ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "wolf3d.h"
 
 void	ft_quit(t_env *env, char *str)
 {
 	int i;
-	
+
 	ft_putendl(str);
 	i = 0;
 	if (env->map)
@@ -55,7 +67,7 @@ int		save_map(int **map, char *mapname)
 {
 	int fd;
 
-	if ((fd = open(mapname, O_RDWR | O_CREAT, S_IRWXU)) < 0)
+	if ((fd = open(mapname, O_RDWR | O_CREAT | O_TRUNC, S_IRWXU)) < 0)
 		return (-1);
 	put_nb_tab_fd(map, fd);
 	close(fd);

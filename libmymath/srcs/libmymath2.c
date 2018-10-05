@@ -1,7 +1,7 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   libmymath.c                                        :+:      :+:    :+:   */
+/*   libmymath2.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: esuits <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
@@ -10,29 +10,16 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-int		ft_ceil(double x)
+double	ft_min(double a, double b)
 {
-	if ((int)x == x)
-		return ((int)x);
-	return ((int)x + 1);
+	if (a < b)
+		return (a);
+	return (b);
 }
 
-int		ft_floor(double x)
+double	ft_max(double a, double b)
 {
-	return ((int)x);
-}
-
-double	ft_abs(double x)
-{
-	return (x >= 0 ? x : -x);
-}
-
-int		sign(double x)
-{
-	return (x > 0 ? 1 : -1);
-}
-
-double	part_dec(double x)
-{
-	return (x - ft_floor(x));
+	if (a < b)
+		return (b);
+	return (a);
 }
