@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   parser.c                                           :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: esuits <marvin@42.fr>                      +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2018/10/07 18:23:30 by esuits            #+#    #+#             */
+/*   Updated: 2018/10/07 18:23:32 by esuits           ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "wolf3d.h"
 
 int		*ft_strintsplit(char *str, char c)
@@ -53,14 +65,14 @@ int		**ft_intsplit(char **tab)
 	return (points);
 }
 
-char	**ft_mise_en_tab(char **argv)
+char	**ft_mise_en_tab(char *argv)
 {
 	char	**buffer;
 	int		i;
 	int		fd;
 
 	i = 0;
-	if ((fd = open(argv[1], O_RDONLY)) < 0)
+	if ((fd = open(argv, O_RDONLY)) < 0)
 		return (NULL);
 	if (!(buffer = malloc(sizeof(char *) * (65))))
 		return (NULL);
@@ -73,12 +85,15 @@ char	**ft_mise_en_tab(char **argv)
 	return (buffer);
 }
 
-void init_flags(t_env *env)
+void	init_flags(t_env *env)
 {
 	env->size = (t_size){env->s->w, env->s->h};
 	env->refresh = 1;
 	env->move = 0;
 	env->rot = 0;
+	env->ed = 0;
+	env->player.pos = (t_vec2){1.5, 1.5};
+	env->player.dir = vec2_normalize((t_vec2){1, 1});
 	rescale(env);
 }
 
@@ -92,10 +107,13 @@ int		init_env(t_env *env, char **argv, int argc)
 		return (1);
 	if (!(env->texts = get_texture()))
 		exit(1);
-	if (argc == 2 && !(env->map = ft_intsplit(ft_mise_en_tab(argv))))
+	env->s = SDL_GetWindowSurface(env->w);
+	init_flags(env);
+	if ((argc == 2 || (argc == 3 && !ft_strcmp(argv[2], "ed"))) &&
+		!(env->map = ft_intsplit(ft_mise_en_tab(argv[1]))))
 		ft_quit(env, PARSE_ERR);
 	i = 0;
-	if (argc == 1)
+	if ((argc == 1 || argc == 3) && (env->ed = 1) && argc != 3)
 	{
 		if (!(env->map = ft_memalloc(sizeof(int*) * 64)))
 			ft_quit(env, MALLOC_FAIL);
@@ -103,9 +121,7 @@ int		init_env(t_env *env, char **argv, int argc)
 			if (!(env->map[i++] = ft_memalloc(sizeof(int) * 64)))
 				ft_quit(env, MALLOC_FAIL);
 	}
-	env->player.pos = (t_vec2){1.5, 1.5};
-	env->player.dir = vec2_normalize((t_vec2){1, 1});
-	env->s = SDL_GetWindowSurface(env->w);
-	init_flags(env);
+	if (!env->ed && env->map[1][1])
+		ft_quit(env, "block on player pos (1,1)");
 	return (0);
 }

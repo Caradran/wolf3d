@@ -31,9 +31,10 @@
 # define HEIGHT 900
 # define BPP 32
 # define TITLE "Wolf 3D"
-# define FOV M_PI / 3.0
+# define FOV 1.0471975512
 # define NB_TILES 14
-# define NB_TEXT 14
+# define NB_TEXT 7
+# define MAPPATH "maps/map04"
 
 # define SAVE_FAIL "saving of map failed, path doesn't exist or no permission"
 # define MALLOC_FAIL "not enough memory to malloc"
@@ -65,6 +66,7 @@ typedef struct	s_env
 	t_text		*texts;
 	int			move;
 	int			rot;
+	int			ed;
 }				t_env;
 
 typedef struct	s_ray
@@ -84,6 +86,7 @@ void			print_wall(t_ray ray, t_env *env, int i, t_vec2 dir);
 int				save_map(int **map, char *mapname);
 
 int				color_tile(int n);
+int				choose_color(SDL_Event e, t_env env, int prev);
 t_text			choose_text(t_env *env, t_ray ray);
 
 t_ray			init_ray(t_player player);
@@ -98,14 +101,17 @@ t_text			get_texture_datas(char *path);
 t_text			*get_texture(void);
 int				uv_wall(t_text text, double x, double y);
 
+int				detect_collision(t_env env, int dir);
+
 int				*ft_strintsplit(char *str, char c);
 int				**ft_intsplit(char **tab);
-char			**ft_mise_en_tab(char **argv);
+char			**ft_mise_en_tab(char *argv);
 int				init_env(t_env *env, char **argv, int argc);
 void			rescale(t_env *env);
 
 void			move(t_env *env);
 void			scan_keyboard(t_env *env, SDL_Event e);
+void			scan_mouse(t_env *env, SDL_Event e);
 
 void			ft_quit(t_env *env, char *str);
 

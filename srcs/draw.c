@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   draw.c                                             :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: esuits <marvin@42.fr>                      +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2018/10/07 18:23:41 by esuits            #+#    #+#             */
+/*   Updated: 2018/10/07 18:23:43 by esuits           ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "wolf3d.h"
 
 void	draw_legend(t_env *env)
@@ -64,27 +76,27 @@ t_text	choose_text(t_env *env, t_ray ray)
 void	print_wall(t_ray ray, t_env *env, int i, t_vec2 dir)
 {
 	double	dist;
-	double	re_hight;
+	double	rh;
 	double	hight;
 	int		j;
 	t_text	text;
 
 	dist = wall_dist(ray, env->player, dir);
-	re_hight = env->s->h / (dist * cos(-FOV / 2.0 +
-				(double)i / env->s->w) * FOV);
-	hight = (re_hight > env->s->h ? env->s->h : re_hight);
+	rh = env->s->h / (dist * cos(-FOV / 2.0 + (double)i / env->s->w) * FOV);
 	j = -1;
 	text = choose_text(env, ray);
-	dir.y = part_dec(env->player.pos.y + dist * dir.y);
-	dir.x = part_dec(env->player.pos.x + dist * dir.x);
+	hight = dir.x < 0 ? part_dec(env->player.pos.y + dist * dir.y) :
+	1 - part_dec(env->player.pos.y + dist * dir.y);
+	dir.x = (dir.y > 0 ? part_dec(env->player.pos.x + dist * dir.x) :
+		1 - part_dec(env->player.pos.x + dist * dir.x));
+	dir.y = hight;
+	hight = (rh > env->s->h ? env->s->h : rh);
 	while (++j < (int)hight)
 		if (ray_in_scop(ray) && ray.side)
-			set_pixel((t_pos){i, ((env->s->h - (int)hight) / 2 + j)},
-				uv_wall(text, (double)((j - (double)(hight - re_hight)
-				/ 2) / re_hight), dir.y), env->s);
+			set_pixel((t_pos){i, ((env->s->h - (int)hight) / 2 + j)}, uv_wall(
+		text, (double)((j - (double)(hight - rh) / 2) / rh), dir.y), env->s);
 		else if (ray_in_scop(ray))
 			set_pixel((t_pos){i, ((env->s->h - hight) / 2 + j)},
-				scale_color(uv_wall(text, (double)j / re_hight -
-				(double)(hight - re_hight) / (2 * re_hight),
-				dir.x), 0.5), env->s);
+			uv_wall(text, (double)j / rh -
+			(double)(hight - rh) / (2 * rh), dir.x), env->s);
 }

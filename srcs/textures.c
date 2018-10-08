@@ -25,7 +25,7 @@ Uint32			getpixel(SDL_Surface *surface, int x, int y)
 		return (*(Uint16 *)p);
 	else if (bpp == 3)
 	{
-		if (SDL_BYTEORDER == SDL_BIG_ENDIAN)
+		if (SDL_BYTEORDER != SDL_BIG_ENDIAN)
 			return (p[0] << 16 | p[1] << 8 | p[2]);
 		else
 			return (p[0] | p[1] << 8 | p[2] << 16);
@@ -87,20 +87,14 @@ t_text			*get_texture(void)
 {
 	static t_text textures[NB_TEXT];
 
-	textures[0] = get_texture_datas("./textures/mosaique.png");
-	textures[1] = get_texture_datas("./textures/metal.jpg");
-	textures[2] = get_texture_datas("./textures/brick.jpg");
-	textures[3] = get_texture_datas("./textures/wood.jpg");
-	textures[4] = get_texture_datas("./textures/stainedGlass1.png");
-	textures[5] = get_texture_datas("./textures/tilesStainedGlass.png");
-	textures[6] = get_texture_datas("./textures/anvil_base.png");
-	textures[7] = get_texture_datas("./textures/ice_packed.png");
-	textures[8] = get_texture_datas("./textures/log_birch_top.png");
-	textures[9] = get_texture_datas("./textures/planks_oak.png");
-	textures[10] = get_texture_datas("./textures/prismarine_bricks.png");
-	textures[11] = get_texture_datas("./textures/quartz_block_bottom.png");
-	textures[12] = get_texture_datas("./textures/stone_diorite.png");
-	textures[13] = get_texture_datas("./textures/stone_andesite.png");
+	textures[0] = get_texture_datas("./textures/2s1mydu.png");
+	textures[1] = get_texture_datas("./textures/GoldGlass.jpg");
+	textures[2] =
+		get_texture_datas("./textures/steamuserimages-a.akamaihd.net.jpeg");
+	textures[3] = get_texture_datas("./textures/aswe1aa-1525953580.jpg");
+	textures[4] = get_texture_datas("./textures/images2.jpg");
+	textures[5] = get_texture_datas("./textures/cells02.jpg");
+	textures[6] = get_texture_datas("./textures/images.jpg");
 	return (textures);
 }
 

@@ -53,65 +53,51 @@ int		choose_color(SDL_Event e, t_env env, int prev)
 	return (prev);
 }
 
+void	refresh(t_env *env)
+{
+	env->s = SDL_GetWindowSurface(env->w);
+	if (env->ed)
+	{
+		ft_memset(env->s->pixels, 0x0, sizeof(int) * env->s->w * env->s->h);
+		rescale(env);
+		draw_map(env);
+	}
+	else
+	{
+		ft_memset(env->s->pixels, 0xb0,
+			(sizeof(int) * env->s->w * env->s->h) / 2);
+		ft_memset(&(env->s->pixels[(sizeof(int) * env->s->w * env->s->h)
+			/ 2]), 0x00, (sizeof(int) * env->s->w * env->s->h) / 2);
+		send_rays(env);
+	}
+	SDL_UpdateWindowSurface(env->w);
+	env->refresh = 0;
+}
+
 int		main(int argc, char **argv)
 {
 	t_env		env;
-	SDL_Thread	*t;
 	int			flag;
-	int			color;
 	SDL_Event	e;
 
-	if (argc > 2 || argc <= 0)
+	if (argc > 3 || argc <= 0 || init_env(&env, argv, argc))
 		return (0);
-	if (init_env(&env, argv, argc))
-		return (0);
-	color = 0;
-	flag = 0;
-	send_rays(&env);
 	while (1)
 	{
+		flag = 1;
 		while (flag || SDL_PollEvent(&e))
 		{
+			if (env.ed)
+				scan_mouse(&env, e);
 			scan_keyboard(&env, e);
 			move(&env);
 			if (e.type == SDL_WINDOWEVENT
 					&& e.window.event == SDL_WINDOWEVENT_RESIZED)
-			{
 				rescale(&env);
-				env.refresh = 1;
-			}
-			if (e.type == SDL_MOUSEBUTTONDOWN)
-			{
-				flag = 1;
-				color = choose_color(e, env, color);
-			}
-			if (e.type == SDL_MOUSEBUTTONUP)
-				flag = 0;
-			if (flag)
-				draw_square_mouse(e, &env, color);
-			if (e.type == SDL_QUIT || (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_ESCAPE)) 
-				ft_quit(&env, QUIT);
-			if (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_RETURN)
-				if (save_map(env.map, "maps/map02"))
-					ft_quit(&env, SAVE_FAIL);
 			flag = 0;
 		}
-		flag = 1;
 		if (env.refresh)
-		{
-			env.s = SDL_GetWindowSurface(env.w);
-			bzero(env.s->pixels, sizeof(int) * env.s->w * env.s->h);
-			if (argc == 1)
-			{
-				rescale(&env);
-				draw_map(&env);
-			}
-			else
-				send_rays(&env);
-			SDL_UpdateWindowSurface(env.w);
-			env.refresh = 0;
-		}
+			refresh(&env);
 	}
-	SDL_Delay(10000);
 	return (0);
 }
