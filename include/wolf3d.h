@@ -34,7 +34,7 @@
 # define FOV 1.0471975512
 # define NB_TILES 14
 # define NB_TEXT 7
-# define MAPPATH "maps/map04"
+# define MAPPATH "maps/map05"
 
 # define SAVE_FAIL "saving of map failed, path doesn't exist or no permission"
 # define MALLOC_FAIL "not enough memory to malloc"

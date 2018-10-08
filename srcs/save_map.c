@@ -36,7 +36,7 @@ void	ft_quit(t_env *env, char *str)
 			i++;
 		}
 	}
-	ft_putendl("exit successfuly");
+	ft_putendl("exit successfully");
 	exit(1);
 }
 

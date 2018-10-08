@@ -25,9 +25,9 @@ LIB_FLAGS = $(LIB_PATH:%=-L%) -lmymath -lvec2 -lft -lgraph \
 INC_FLAGS = $(LIB_PATH:%=-I%/include) -Iinclude `sdl2-config --cflags`
 FLAGS = $(INC_FLAGS) -O3
 
-all : $(NAME)
+all : libs $(NAME)
 
-$(NAME) : libs $(OBJ)
+$(NAME) : $(OBJ)
 	$(CC) $(OBJ) $(FLAGS) $(LIB_FLAGS) -o $(NAME)
 
 libs :

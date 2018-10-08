@@ -80,8 +80,9 @@ int		main(int argc, char **argv)
 	int			flag;
 	SDL_Event	e;
 
-	if (argc > 3 || argc <= 0 || init_env(&env, argv, argc))
-		return (0);
+	if (argc > 3 || argc <= 0 || (argc == 3 && ft_strcmp(argv[2], "ed"))
+		|| init_env(&env, argv, argc))
+		return (write(0, "usage : wolf3d [map [ed]]\n", 26));
 	while (1)
 	{
 		flag = 1;

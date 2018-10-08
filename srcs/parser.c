@@ -109,8 +109,7 @@ int		init_env(t_env *env, char **argv, int argc)
 		exit(1);
 	env->s = SDL_GetWindowSurface(env->w);
 	init_flags(env);
-	if ((argc == 2 || (argc == 3 && !ft_strcmp(argv[2], "ed"))) &&
-		!(env->map = ft_intsplit(ft_mise_en_tab(argv[1]))))
+	if (argc > 1 && !(env->map = ft_intsplit(ft_mise_en_tab(argv[1]))))
 		ft_quit(env, PARSE_ERR);
 	i = 0;
 	if ((argc == 1 || argc == 3) && (env->ed = 1) && argc != 3)
